@@ -1,0 +1,6 @@
+FROM python:3.8
+ENV PYTHONUNBUFFERED 1
+RUN mkdir /conf
+ADD requirements.txt /conf/
+RUN pip install -r /conf/requirements.txt
+WORKDIR /api

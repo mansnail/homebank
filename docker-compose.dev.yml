@@ -1,0 +1,61 @@
+version: '2'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: ng01
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./conf/dev/nginx:/etc/nginx/conf.d
+      - ./conf/ssl:/ssl
+      - /home/mansnail/Private/workspace/homebank/data/static:/static
+      - /home/mansnail/Private/workspace/homebank/data/uploads:/uploads
+    links:
+      - api
+    depends_on:
+      - api
+
+  api:
+    image: homebank/backend:latest
+    build:
+      context: ./backend/
+      dockerfile: Dockerfile.dev
+    container_name: dg01
+    command: bash -c "python manage.py collectstatic --no-input && gunicorn homebank.wsgi -b 0.0.0.0:8000 --workers=4 --reload --timeout 120"
+    environment:
+      - DJANGO_SETTINGS_MODULE=homebank.settings.dev
+    volumes:
+      - ./backend/api:/api
+      - /home/mansnail/Private/workspace/homebank/data/static:/static
+      - /home/mansnail/Private/workspace/homebank/data/uploads:/uploads
+    links:
+      - db
+    depends_on:
+      - db
+    expose:
+      - "8000"
+
+  db:
+    image: postgres:12
+    container_name: ps01
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    ports:
+      - "5432:5432"
+    volumes:
+      - /home/mansnail/Private/workspace/homebank/data/psql/data:/var/lib/postgresql/data
+
+#  demo:
+#    image: homebank/demo:latest
+#    build:
+#      context: ./demo/
+#      dockerfile: Dockerfile.dev
+#    container_name: dm01
+#    command: bash -c "npm start"
+#    volumes:
+#      - ./demo:/demo
+#    depends_on:
+#      - api
+#    ports:
+#      - "3000:3000"

@@ -1,0 +1,9 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ _('Home Bank site admin') }} | {{ title }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ _('Home Bank Administration') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
